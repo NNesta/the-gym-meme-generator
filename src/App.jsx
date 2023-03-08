@@ -1,29 +1,27 @@
 import React, { useState, useEffect } from "react";
 
 function App() {
-  const [memesData, setMemesData] = useState(null);
-  const [meme, setMeme] = useState("");
-  const [first, setFirst] = useState("");
-  const [second, setSecond] = useState("");
+  const [memeImages, setMemeImages] = useState([]);
+  const [randomImage, setRandomImage] = useState("");
+  const [input, setInput] = useState({ first: "", second: "" });
+
+  const generateRandomImage = () => {
+    // Function which generate random image from
+    const randomIndex = Math.floor(Math.random() * memeImages.length);
+    const image = memeImages[randomIndex];
+    setRandomImage(image);
+  };
   useEffect(() => {
     fetch("https://api.imgflip.com/get_memes")
       .then((response) => response.json())
-      .then((data) => {
-        setMemesData(data);
+      .then((result) => {
+        setMemeImages(result.data.memes);
       });
-    getRandomImage();
   }, []);
-  const getRandomImage = () => {
-    const image =
-      memesData &&
-      memesData.data.memes[
-        Math.floor(Math.random() * memesData.data.memes.length)
-      ];
-    setMeme(image);
-  };
+
   useEffect(() => {
-    getRandomImage();
-  }, [memesData]);
+    generateRandomImage();
+  }, [memeImages]);
 
   return (
     <main className="max-w-[550px] mx-auto max-h-screen ">
@@ -41,15 +39,15 @@ function App() {
       <div className="flex flex-col items-center  m-4 gap-4">
         <div className="flex w-full gap-4 py-4 justify-center">
           <input
-            onChange={(e) => setFirst(e.target.value)}
+            onChange={(e) => setInput({ ...input, first: e.target.value })}
             className="px-2 w-[50%] h-9 border border-[#D5D4D8] rounded-[5px] focus:outline-none focus:border-4 focus:border-sky-400"
             placeholder=""
-            value={first}
+            value={input.first}
           />
           <input
-            onChange={(e) => setSecond(e.target.value)}
+            onChange={(e) => setInput({ ...input, second: e.target.value })}
             className="px-2 w-[50%] h-9 border border-[#D5D4D8] rounded-[5px]  focus:outline-none focus:border-4 focus:border-sky-400"
-            value={second}
+            value={input.second}
           />
         </div>
         <button
@@ -59,7 +57,7 @@ function App() {
           }}
           className="w-full h-10 rounded-[5px] text-xl"
           onClick={() => {
-            getRandomImage();
+            generateRandomImage();
           }}
         >
           Get a new meme image 🖼
@@ -67,16 +65,16 @@ function App() {
         <div
           className={`relative text-4xl font-bold h-[500px]  p-4 text-white`}
         >
-          <p className="absolute top-4 inset-x-4 mx-auto text-center  text-auto">
-            {first}
+          <p className="absolute top-4 inset-x-4 mx-auto text-center  text-auto text-orange-500">
+            {input.first}
           </p>
           <img
-            className="w-full object-contain h-full"
-            src={meme?.url}
+            className="w-full object-cover h-full"
+            src={randomImage?.url}
             alt=""
           />
-          <p className="absolute bottom-4 inset-x-4 mx-auto text-auto text-center">
-            {second}
+          <p className="absolute bottom-4 inset-x-4 mx-auto text-auto text-center text-orange-500">
+            {input.second}
           </p>
         </div>
       </div>
